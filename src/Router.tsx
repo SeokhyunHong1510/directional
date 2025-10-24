@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
+import Login from './pages/Login';
 import PostList from './pages/PostList';
 import GlobalStyle from './styles/GlobalStyle';
 
@@ -8,6 +9,7 @@ const Router = () => {
     <BrowserRouter>
       <GlobalStyle />
       <Routes>
+        <Route path="/login" element={<Login />} />
         <Route path="/" element={<PostList />} />
         <Route path="/posts" element={<PostList />} />
         {/* Add more routes here */}
