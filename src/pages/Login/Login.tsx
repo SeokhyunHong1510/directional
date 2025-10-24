@@ -29,7 +29,7 @@ const Login = () => {
     try {
       const response = await login({ email, password });
       localStorage.setItem('auth_token', response.token);
-      navigate('/posts');
+      navigate('/');
     } catch (err) {
       setError('Login failed. Please check your credentials.');
     } finally {
