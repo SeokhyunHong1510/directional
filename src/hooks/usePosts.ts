@@ -1,76 +1,71 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 
-import type {
-  GetPostsParams,
-  CreatePostRequest,
-  UpdatePostRequest,
-} from '../types/post';
+import type { GetPostsParams, GetPostsResponse, Post } from '../types/post';
 
-import {
-  getPosts,
-  getPost,
-  createPost,
-  updatePost,
-  deletePost,
-  deleteAllPosts,
-} from '../api/posts';
+import { getPosts, getPost } from '../api/posts';
 
 export const usePosts = (params?: GetPostsParams) => {
-  return useQuery({
-    queryKey: ['posts', params],
-    queryFn: () => getPosts(params),
-  });
+  const [data, setData] = useState<GetPostsResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await getPosts(params);
+        setData(response);
+      } catch (err) {
+        setError(err as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPosts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    params?.limit,
+    params?.prevCursor,
+    params?.nextCursor,
+    params?.sort,
+    params?.order,
+    params?.category,
+    params?.from,
+    params?.to,
+    params?.search,
+  ]);
+
+  return { data, isLoading, error };
 };
 
 export const usePost = (id: string) => {
-  return useQuery({
-    queryKey: ['posts', id],
-    queryFn: () => getPost(id),
-    enabled: !!id,
-  });
-};
+  const [data, setData] = useState<Post | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-export const useCreatePost = () => {
-  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (!id) {
+      setIsLoading(false);
+      return;
+    }
 
-  return useMutation({
-    mutationFn: (data: CreatePostRequest) => createPost(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-    },
-  });
-};
+    const fetchPost = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await getPost(id);
+        setData(response);
+      } catch (err) {
+        setError(err as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-export const useUpdatePost = () => {
-  const queryClient = useQueryClient();
+    fetchPost();
+  }, [id]);
 
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdatePostRequest }) =>
-      updatePost(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-    },
-  });
-};
-
-export const useDeletePost = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: string) => deletePost(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-    },
-  });
-};
-
-export const useDeleteAllPosts = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: () => deleteAllPosts(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-    },
-  });
+  return { data, isLoading, error };
 };
