@@ -10,6 +10,11 @@ export interface Post {
   createdAt: string;
 }
 
+export interface MockPostsResponse {
+  items: Post[];
+  count: number;
+}
+
 export interface GetPostsParams {
   limit?: number;
   prevCursor?: string;
