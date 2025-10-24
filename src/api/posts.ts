@@ -2,11 +2,21 @@ import type {
   CreatePostRequest,
   GetPostsParams,
   GetPostsResponse,
+  MockPostsResponse,
   Post,
   UpdatePostRequest,
 } from '../types/post';
 
 import apiClient from './client';
+
+export const getMockPosts = async (
+  count: number = 300,
+): Promise<MockPostsResponse> => {
+  const response = await apiClient.get<MockPostsResponse>('/mock/posts', {
+    params: { count },
+  });
+  return response.data;
+};
 
 export const getPosts = async (
   params?: GetPostsParams,

@@ -1,55 +1,104 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import type { Category, GetPostsParams } from '../../types/post';
-import { usePosts } from '../../hooks/usePosts';
+import type { Category, Post } from '../../types/post';
 
+import { getMockPosts } from '../../api/posts';
 import {
-  Container,
-  Header,
-  Title,
   Button,
+  Container,
+  EmptyText,
+  ErrorText,
   FilterSection,
+  Header,
+  LoadingText,
+  PaginationContainer,
+  PostBody,
+  PostCard,
+  PostCategory,
+  PostListContainer,
+  PostMeta,
+  PostTag,
+  PostTitle,
   SearchInput,
   Select,
-  PostListContainer,
-  PostCard,
-  PostTitle,
-  PostBody,
-  PostMeta,
-  PostCategory,
-  PostTag,
   TagContainer,
-  PaginationContainer,
-  LoadingText,
-  ErrorText,
-  EmptyText,
+  Title,
 } from './PostList.styles';
 
 const PostList = () => {
   const navigate = useNavigate();
-  const [params, setParams] = useState<GetPostsParams>({
-    limit: 10,
-    sort: 'createdAt',
-    order: 'desc',
-  });
+  const [allPosts, setAllPosts] = useState<Post[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState(0);
+  const [category, setCategory] = useState<Category | ''>('');
+  const [sortBy, setSortBy] = useState<'createdAt' | 'title'>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const { data, isLoading, error } = usePosts(params);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    const fetchMockPosts = async () => {
+      try {
+        setIsLoading(true);
+        const response = await getMockPosts(300);
+        setAllPosts(response.items);
+      } catch (err) {
+        setError('Failed to load posts');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMockPosts();
+  }, []);
+
+  useEffect(() => {
+    let result = [...allPosts];
+
+    // Filter by category
+    if (category) {
+      result = result.filter((post) => post.category === category);
+    }
+
+    // Search
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (post) =>
+          post.title.toLowerCase().includes(query) ||
+          post.body.toLowerCase().includes(query),
+      );
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      const aValue = a[sortBy];
+      const bValue = b[sortBy];
+
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      }
+      return aValue < bValue ? 1 : -1;
+    });
+
+    setFilteredPosts(result);
+    setCurrentPage(0);
+  }, [allPosts, category, searchQuery, sortBy, sortOrder]);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const search = formData.get('search') as string;
-    setParams((prev) => ({ ...prev, search, nextCursor: undefined }));
+    setSearchQuery(search);
   };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const category = e.target.value as Category | '';
-    setParams((prev) => ({
-      ...prev,
-      category: category || undefined,
-      nextCursor: undefined,
-    }));
+    const selectedCategory = e.target.value as Category | '';
+    setCategory(selectedCategory);
   };
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -57,28 +106,24 @@ const PostList = () => {
       'createdAt' | 'title',
       'asc' | 'desc',
     ];
-    setParams((prev) => ({ ...prev, sort, order, nextCursor: undefined }));
+    setSortBy(sort);
+    setSortOrder(order);
   };
 
   const handleNextPage = () => {
-    if (data?.nextCursor) {
-      setParams((prev) => ({
-        ...prev,
-        nextCursor: data.nextCursor,
-        prevCursor: undefined,
-      }));
-    }
+    setCurrentPage((prev) => prev + 1);
   };
 
   const handlePrevPage = () => {
-    if (data?.prevCursor) {
-      setParams((prev) => ({
-        ...prev,
-        prevCursor: data.prevCursor,
-        nextCursor: undefined,
-      }));
-    }
+    setCurrentPage((prev) => Math.max(0, prev - 1));
   };
+
+  const paginatedPosts = filteredPosts.slice(
+    currentPage * itemsPerPage,
+    (currentPage + 1) * itemsPerPage,
+  );
+  const hasNextPage = (currentPage + 1) * itemsPerPage < filteredPosts.length;
+  const hasPrevPage = currentPage > 0;
 
   if (isLoading) return <LoadingText>Loading...</LoadingText>;
   if (error) return <ErrorText>Error loading posts</ErrorText>;
@@ -86,7 +131,7 @@ const PostList = () => {
   return (
     <Container>
       <Header>
-        <Title>My Posts</Title>
+        <Title>Posts</Title>
         <Button onClick={() => navigate('/posts/new')}>New Post</Button>
       </Header>
 
@@ -96,21 +141,19 @@ const PostList = () => {
             type="text"
             name="search"
             placeholder="Search posts..."
+            defaultValue={searchQuery}
           />
           <Button type="submit">Search</Button>
         </form>
 
-        <Select value={params.category || ''} onChange={handleCategoryChange}>
+        <Select value={category} onChange={handleCategoryChange}>
           <option value="">All Categories</option>
           <option value="NOTICE">Notice</option>
           <option value="QNA">Q&A</option>
           <option value="FREE">Free</option>
         </Select>
 
-        <Select
-          value={`${params.sort}-${params.order}`}
-          onChange={handleSortChange}
-        >
+        <Select value={`${sortBy}-${sortOrder}`} onChange={handleSortChange}>
           <option value="createdAt-desc">Latest First</option>
           <option value="createdAt-asc">Oldest First</option>
           <option value="title-asc">Title A-Z</option>
@@ -119,8 +162,8 @@ const PostList = () => {
       </FilterSection>
 
       <PostListContainer>
-        {data?.items && data.items.length > 0 ? (
-          data.items.map((post) => (
+        {paginatedPosts.length > 0 ? (
+          paginatedPosts.map((post) => (
             <PostCard
               key={post.id}
               onClick={() => navigate(`/posts/${post.id}`)}
@@ -146,10 +189,10 @@ const PostList = () => {
       </PostListContainer>
 
       <PaginationContainer>
-        <Button onClick={handlePrevPage} disabled={!data?.prevCursor}>
+        <Button onClick={handlePrevPage} disabled={!hasPrevPage}>
           Previous
         </Button>
-        <Button onClick={handleNextPage} disabled={!data?.nextCursor}>
+        <Button onClick={handleNextPage} disabled={!hasNextPage}>
           Next
         </Button>
       </PaginationContainer>
