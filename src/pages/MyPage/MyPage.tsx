@@ -40,7 +40,6 @@ const MyPage = () => {
     order: 'desc',
   });
 
-  // 인증 체크: 토큰이 없으면 메인으로 리다이렉트
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
     if (!token) {

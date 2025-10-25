@@ -27,14 +27,12 @@ const PostDetail = () => {
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
 
-  // location.state에서 전달된 post 데이터 가져오기
   const statePost = location.state?.post as Post | undefined;
 
   const [post, setPost] = useState<Post | null>(statePost || null);
   const [isLoading, setIsLoading] = useState(!statePost);
   const [error, setError] = useState<string>('');
 
-  // state로 전달된 데이터가 없으면 API 호출
   useEffect(() => {
     if (!statePost && id) {
       const fetchPost = async () => {
@@ -53,13 +51,11 @@ const PostDetail = () => {
     }
   }, [id, statePost]);
 
-  // JWT 토큰에서 userId 추출 시도
   const getCurrentUserId = (): string | null => {
     try {
       const token = localStorage.getItem('auth_token');
       if (!token) return null;
 
-      // JWT 토큰 디코딩 (payload 부분)
       const payload = token.split('.')[1];
       const decoded = JSON.parse(atob(payload));
       return decoded.userId || decoded.sub || decoded.id || null;
