@@ -96,3 +96,20 @@ export const ErrorMessage = styled.div`
   font-size: 0.875rem;
   text-align: center;
 `;
+
+export const BackLink = styled.button`
+  background: none;
+  border: none;
+  color: #667eea;
+  font-size: 0.875rem;
+  text-align: center;
+  cursor: pointer;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  transition: color 0.2s;
+
+  &:hover {
+    color: #764ba2;
+    text-decoration: underline;
+  }
+`;

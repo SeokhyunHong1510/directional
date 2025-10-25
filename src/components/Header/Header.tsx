@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
@@ -14,11 +14,19 @@ import {
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const isLoggedIn = !!localStorage.getItem('auth_token');
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    !!localStorage.getItem('auth_token'),
+  );
+
+  // location이나 로그인 상태 변경 감지
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem('auth_token'));
+  }, [location.pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
-    navigate('/login');
+    setIsLoggedIn(false); // UI 즉시 업데이트
+    navigate('/'); // 로그아웃 시 항상 메인으로 이동
   };
 
   // Don't show header on login page
@@ -31,16 +39,16 @@ const Header = () => {
       <Logo onClick={() => navigate('/')}>Directional Board</Logo>
       <Nav>
         <NavLink
-          onClick={() => navigate('/posts')}
-          $active={location.pathname === '/' || location.pathname === '/posts'}
-        >
-          Posts
-        </NavLink>
-        <NavLink
-          onClick={() => navigate('/charts')}
-          $active={location.pathname === '/charts'}
+          onClick={() => navigate('/')}
+          $active={location.pathname === '/' || location.pathname === '/charts'}
         >
           Charts
+        </NavLink>
+        <NavLink
+          onClick={() => navigate('/posts')}
+          $active={location.pathname === '/posts'}
+        >
+          Posts
         </NavLink>
         {isLoggedIn && (
           <NavLink

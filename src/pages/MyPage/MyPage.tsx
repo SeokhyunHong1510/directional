@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { usePosts } from '../../hooks/usePosts';
@@ -39,6 +39,14 @@ const MyPage = () => {
     sort: 'createdAt',
     order: 'desc',
   });
+
+  // 인증 체크: 토큰이 없으면 메인으로 리다이렉트
+  useEffect(() => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      navigate('/');
+    }
+  }, [navigate]);
 
   const { data, isLoading, error } = usePosts(params);
 

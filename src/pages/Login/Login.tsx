@@ -3,15 +3,16 @@ import { useNavigate } from 'react-router-dom';
 
 import { login } from '../../api/auth';
 import {
+  BackLink,
+  Button,
   Container,
-  LoginBox,
-  Title,
+  ErrorMessage,
   Form,
+  Input,
   InputGroup,
   Label,
-  Input,
-  Button,
-  ErrorMessage,
+  LoginBox,
+  Title,
 } from './Login.styles';
 
 const Login = () => {
@@ -72,6 +73,7 @@ const Login = () => {
             {isLoading ? 'Logging in...' : 'Login'}
           </Button>
         </Form>
+        <BackLink onClick={() => navigate('/')}>← 메인으로 돌아가기</BackLink>
       </LoginBox>
     </Container>
   );
