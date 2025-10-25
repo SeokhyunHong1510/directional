@@ -109,10 +109,12 @@ export const PostCard = styled.div`
   background-color: white;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
+  cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
   }
 `;
 
@@ -151,19 +153,19 @@ export const PostActions = styled.div`
   gap: 0.5rem;
 `;
 
-export const IconButton = styled.button`
+export const IconButton = styled.button<{ danger?: boolean }>`
   padding: 0.5rem 1rem;
-  background-color: #f8f9fa;
-  color: #333;
-  border: 1px solid #dee2e6;
+  background-color: ${(props) => (props.danger ? '#dc3545' : '#f8f9fa')};
+  color: ${(props) => (props.danger ? 'white' : '#333')};
+  border: 1px solid ${(props) => (props.danger ? '#dc3545' : '#dee2e6')};
   border-radius: 4px;
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background-color: #e9ecef;
-    border-color: #adb5bd;
+    background-color: ${(props) => (props.danger ? '#c82333' : '#e9ecef')};
+    border-color: ${(props) => (props.danger ? '#c82333' : '#adb5bd')};
   }
 `;
 

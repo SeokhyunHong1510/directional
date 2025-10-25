@@ -166,7 +166,7 @@ const PostList = () => {
           paginatedPosts.map((post) => (
             <PostCard
               key={post.id}
-              onClick={() => navigate(`/posts/${post.id}`)}
+              onClick={() => navigate(`/posts/${post.id}`, { state: { post } })}
             >
               <PostCategory category={post.category}>
                 {post.category}
