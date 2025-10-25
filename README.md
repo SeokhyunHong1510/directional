@@ -190,10 +190,6 @@ src/
 
 ## 개발 시 주의사항
 
-## API 문서
-
-- **Swagger URL**: https://fe-hiring-rest-api.vercel.app/docs
-- **Base URL**: https://fe-hiring-rest-api.vercel.app
 
 ## 배포 링크
 
