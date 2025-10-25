@@ -49,18 +49,70 @@ const Chart = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchWithRetry = async <T,>(
+      fetchFn: () => Promise<T>,
+      retries = 3,
+    ): Promise<T> => {
+      let lastError: Error | null = null;
+
+      // eslint-disable-next-line no-plusplus
+      for (let i = 0; i < retries; i++) {
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          return await fetchFn();
+        } catch (err) {
+          lastError = err instanceof Error ? err : new Error('Unknown error');
+          if (i < retries - 1) {
+            // 재시도 간격: 1초, 2초, 3초 (exponential backoff)
+            // eslint-disable-next-line no-await-in-loop
+            await new Promise((resolve) => {
+              setTimeout(resolve, 1000 * (i + 1));
+            });
+          }
+        }
+      }
+      throw lastError || new Error('Max retries reached');
+    };
+
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [brandsRes, moodRes, consumptionRes] = await Promise.all([
-          apiClient.get<CoffeeBrand[]>('/mock/top-coffee-brands'),
-          apiClient.get<WeeklyMood[]>('/mock/weekly-mood-trend'),
-          apiClient.get<CoffeeConsumptionResponse>('/mock/coffee-consumption'),
+
+        // 각 요청을 개별적으로 처리 (하나 실패해도 나머지는 계속)
+        const results = await Promise.allSettled([
+          fetchWithRetry(() =>
+            apiClient.get<CoffeeBrand[]>('/mock/top-coffee-brands'),
+          ),
+          fetchWithRetry(() =>
+            apiClient.get<WeeklyMood[]>('/mock/weekly-mood-trend'),
+          ),
+          fetchWithRetry(() =>
+            apiClient.get<CoffeeConsumptionResponse>(
+              '/mock/coffee-consumption',
+            ),
+          ),
         ]);
 
-        setCoffeeBrands(brandsRes.data);
-        setMoodTrend(moodRes.data);
-        setCoffeeConsumption(consumptionRes.data);
+        // 성공한 데이터만 설정
+        if (results[0].status === 'fulfilled') {
+          setCoffeeBrands(results[0].value.data);
+        }
+        if (results[1].status === 'fulfilled') {
+          setMoodTrend(results[1].value.data);
+        }
+        if (results[2].status === 'fulfilled') {
+          setCoffeeConsumption(results[2].value.data);
+        }
+
+        // 에러 처리: 모두 실패 vs 일부 실패
+        const failedCount = results.filter(
+          (r) => r.status === 'rejected',
+        ).length;
+        if (failedCount === results.length) {
+          setError('모든 데이터를 불러오는데 실패했습니다.');
+        } else if (failedCount > 0) {
+          setError(`일부 데이터(${failedCount}개)를 불러오는데 실패했습니다.`);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -343,7 +395,11 @@ const Chart = () => {
     );
   }
 
-  if (error) {
+  // 모든 데이터가 실패한 경우에만 에러 화면 표시
+  const hasAnyData =
+    coffeeBrands.length > 0 || moodTrend.length > 0 || coffeeConsumption;
+
+  if (error && !hasAnyData) {
     return (
       <S.Container>
         <S.Title>데이터 시각화</S.Title>
@@ -355,6 +411,9 @@ const Chart = () => {
   return (
     <S.Container>
       <S.Title>데이터 시각화</S.Title>
+
+      {/* 일부 데이터만 실패한 경우 경고 표시 */}
+      {error && hasAnyData && <S.ErrorText>{error}</S.ErrorText>}
 
       <S.TabContainer>
         <S.Tab
