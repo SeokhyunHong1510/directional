@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import Header from './components/Header';
+import Chart from './pages/Chart';
 import Login from './pages/Login';
 import MyPage from './pages/MyPage';
 import PostCreate from './pages/PostCreate';
@@ -21,6 +22,7 @@ const Router = () => {
         <Route path="/posts/edit/:id" element={<PostCreate />} />
         <Route path="/posts/:id" element={<PostDetail />} />
         <Route path="/mypage" element={<MyPage />} />
+        <Route path="/charts" element={<Chart />} />
         {/* Add more routes here */}
       </Routes>
     </BrowserRouter>
