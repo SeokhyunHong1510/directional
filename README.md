@@ -95,7 +95,7 @@ src/
 
 ### 4. 기술적 특징
 - **타입 안정성**
-  - TypeScript를 활용한 엄격한 타입 체크
+  - TypeScript를 활용한 타입 체크
   - API 응답 타입 정의 및 검증
 - **코드 품질**
   - ESLint + Prettier를 통한 일관된 코드 스타일
@@ -126,15 +126,9 @@ src/
 - JWT 토큰 발급 및 저장
 
 ### 4. My Page (`/mypage`)
-- 사용자 정보 관리 (로그인 필요)
+- 사용자 작성 게시물 관리 (로그인 필요)
 
 ## 개발 시 주의사항
-
-### 의존성 설치 이슈
-npm 버전 충돌 시 legacy peer deps 옵션 사용:
-```bash
-npm install --legacy-peer-deps
-```
 
 ## API 문서
 
@@ -166,7 +160,7 @@ DOM에 전달되지 않아야 하는 props는 `$` prefix를 사용:
 - 일부 실패 시에도 성공한 데이터는 표시
 
 ### Promise.allSettled 
-- **Promise.allSettled**: 각 요청을 독립적으로 처리 (프로젝트에서 사용)
+- **Promise.allSettled**: 각 요청을 독립적으로 처리
 
 ---
 
