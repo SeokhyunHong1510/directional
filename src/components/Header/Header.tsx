@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
-  HeaderContainer,
-  Logo,
-  Nav,
-  NavLink,
   AuthSection,
   Button,
+  HeaderContainer,
+  Logo,
   LogoutButton,
+  Nav,
+  NavLink,
 } from './Header.styles';
 
 const Header = () => {
@@ -18,18 +18,16 @@ const Header = () => {
     !!localStorage.getItem('auth_token'),
   );
 
-  // location이나 로그인 상태 변경 감지
   useEffect(() => {
     setIsLoggedIn(!!localStorage.getItem('auth_token'));
   }, [location.pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
-    setIsLoggedIn(false); // UI 즉시 업데이트
-    navigate('/'); // 로그아웃 시 항상 메인으로 이동
+    setIsLoggedIn(false);
+    navigate('/');
   };
 
-  // Don't show header on login page
   if (location.pathname === '/login') {
     return null;
   }

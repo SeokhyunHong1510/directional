@@ -59,12 +59,10 @@ const PostList = () => {
   useEffect(() => {
     let result = [...allPosts];
 
-    // Filter by category
     if (category) {
       result = result.filter((post) => post.category === category);
     }
 
-    // Search
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
@@ -74,7 +72,6 @@ const PostList = () => {
       );
     }
 
-    // Sort
     result.sort((a, b) => {
       const aValue = a[sortBy];
       const bValue = b[sortBy];

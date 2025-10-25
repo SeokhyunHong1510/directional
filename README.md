@@ -199,16 +199,6 @@ TODO: 배포 후 추가
 
 ## 프로젝트 특이사항
 
-### 1. Styled Components Transient Props
-DOM에 전달되지 않아야 하는 props는 `$` prefix를 사용하여 React 경고 방지:
-```typescript
-// ❌ Warning 발생
-<Button active={true}>  // DOM에 active="true" 전달됨
-
-// ✅ 올바른 사용
-<Button $active={true}>  // 스타일링만 사용, DOM에 전달 안 됨
-```
-
 ### 2. API 재시도 로직
 차트 데이터 로딩 시 자동 재시도 구현:
 - 최대 3회 재시도
@@ -217,9 +207,9 @@ DOM에 전달되지 않아야 하는 props는 `$` prefix를 사용하여 React �
 
 ### 3. Promise.allSettled
 ```typescript
-// Promise.allSettled - 각 요청을 독립적으로 처리 (프로젝트에서 사용)
+// Promise.allSettled - 각 요청을 독립적으로 처리
 const results = await Promise.allSettled([api1(), api2(), api3()]);
-// 성공한 것만 사용 가능
+
 ```
 
 ### 4. JWT 디코딩
@@ -233,15 +223,12 @@ const decoded = JSON.parse(atob(payload));
 
 ### 5. 인증 상태 관리
 ```typescript
-// useState로 인증 상태 관리
 const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('auth_token'));
 
-// location 변경 시 체크
 useEffect(() => {
   setIsLoggedIn(!!localStorage.getItem('auth_token'));
 }, [location.pathname]);
 
-// 로그아웃 시 즉시 UI 업데이트
 setIsLoggedIn(false);
 ```
 

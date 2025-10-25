@@ -23,7 +23,6 @@ import type {
 import apiClient from '../../api/client';
 import * as S from './Chart.styles';
 
-// Register Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -52,33 +51,27 @@ const Chart = () => {
     const fetchWithRetry = async <T,>(
       fetchFn: () => Promise<T>,
       retries = 3,
+      attempt = 0,
     ): Promise<T> => {
-      let lastError: Error | null = null;
-
-      // eslint-disable-next-line no-plusplus
-      for (let i = 0; i < retries; i++) {
-        try {
-          // eslint-disable-next-line no-await-in-loop
-          return await fetchFn();
-        } catch (err) {
-          lastError = err instanceof Error ? err : new Error('Unknown error');
-          if (i < retries - 1) {
-            // 재시도 간격: 1초, 2초, 3초 (exponential backoff)
-            // eslint-disable-next-line no-await-in-loop
-            await new Promise((resolve) => {
-              setTimeout(resolve, 1000 * (i + 1));
-            });
-          }
+      try {
+        return await fetchFn();
+      } catch (err) {
+        if (attempt >= retries - 1) {
+          throw err instanceof Error ? err : new Error('Unknown error');
         }
+
+        await new Promise((resolve) => {
+          setTimeout(resolve, 1000 * (attempt + 1));
+        });
+
+        return fetchWithRetry(fetchFn, retries, attempt + 1);
       }
-      throw lastError || new Error('Max retries reached');
     };
 
     const fetchData = async () => {
       try {
         setLoading(true);
 
-        // 각 요청을 개별적으로 처리 (하나 실패해도 나머지는 계속)
         const results = await Promise.allSettled([
           fetchWithRetry(() =>
             apiClient.get<CoffeeBrand[]>('/mock/top-coffee-brands'),
@@ -93,7 +86,6 @@ const Chart = () => {
           ),
         ]);
 
-        // 성공한 데이터만 설정
         if (results[0].status === 'fulfilled') {
           setCoffeeBrands(results[0].value.data);
         }
@@ -104,7 +96,6 @@ const Chart = () => {
           setCoffeeConsumption(results[2].value.data);
         }
 
-        // 에러 처리: 모두 실패 vs 일부 실패
         const failedCount = results.filter(
           (r) => r.status === 'rejected',
         ).length;
@@ -123,7 +114,6 @@ const Chart = () => {
     fetchData();
   }, []);
 
-  // Coffee Brands Bar Chart
   const coffeeBrandsBarData = {
     labels: coffeeBrands.map((item) => item.brand),
     datasets: [
@@ -149,7 +139,6 @@ const Chart = () => {
     ],
   };
 
-  // Coffee Brands Donut Chart
   const coffeeBrandsDonutData = {
     labels: coffeeBrands.map((item) => item.brand),
     datasets: [
@@ -175,7 +164,6 @@ const Chart = () => {
     ],
   };
 
-  // Weekly Mood Stacked Bar Chart
   const moodStackedBarData = {
     labels: moodTrend.map((item) => item.week),
     datasets: [
@@ -229,7 +217,6 @@ const Chart = () => {
     },
   };
 
-  // Weekly Mood Stacked Area Chart
   const moodStackedAreaData = {
     labels: moodTrend.map((item) => item.week),
     datasets: [
@@ -289,8 +276,7 @@ const Chart = () => {
     },
   };
 
-  // Coffee Consumption Multi-line Chart
-  const colors = [
+  const coffeeConsumptionDataColors = [
     { bugs: 'rgba(255, 99, 132, 1)', productivity: 'rgba(255, 99, 132, 0.6)' },
     { bugs: 'rgba(54, 162, 235, 1)', productivity: 'rgba(54, 162, 235, 0.6)' },
     { bugs: 'rgba(75, 192, 192, 1)', productivity: 'rgba(75, 192, 192, 0.6)' },
@@ -305,8 +291,8 @@ const Chart = () => {
           {
             label: `${team.team} - 버그 수`,
             data: team.series.map((item) => item.bugs),
-            borderColor: colors[index].bugs,
-            backgroundColor: colors[index].bugs,
+            borderColor: coffeeConsumptionDataColors[index].bugs,
+            backgroundColor: coffeeConsumptionDataColors[index].bugs,
             borderWidth: 2,
             pointStyle: 'circle' as const,
             pointRadius: 6,
@@ -316,8 +302,8 @@ const Chart = () => {
           {
             label: `${team.team} - 생산성`,
             data: team.series.map((item) => item.productivity),
-            borderColor: colors[index].productivity,
-            backgroundColor: colors[index].productivity,
+            borderColor: coffeeConsumptionDataColors[index].productivity,
+            backgroundColor: coffeeConsumptionDataColors[index].productivity,
             borderWidth: 2,
             borderDash: [5, 5],
             pointStyle: 'rect' as const,
@@ -395,7 +381,6 @@ const Chart = () => {
     );
   }
 
-  // 모든 데이터가 실패한 경우에만 에러 화면 표시
   const hasAnyData =
     coffeeBrands.length > 0 || moodTrend.length > 0 || coffeeConsumption;
 

@@ -40,7 +40,6 @@ const PostCreate = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 인증 체크: 토큰이 없으면 메인으로 리다이렉트
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
     if (!token) {
@@ -53,7 +52,6 @@ const PostCreate = () => {
     return foundWord || null;
   };
 
-  // 수정 모드일 때 게시글 데이터 불러오기
   useEffect(() => {
     if (isEditMode && id) {
       const fetchPost = async () => {
@@ -82,26 +80,22 @@ const PostCreate = () => {
       return;
     }
 
-    // 금지어 체크
     const forbiddenWord = checkForbiddenWords(trimmedTag);
     if (forbiddenWord) {
       setError(`Tag contains forbidden word: "${forbiddenWord}"`);
       return;
     }
 
-    // 24자 이내 체크
     if (trimmedTag.length > 24) {
       setError('Tag must be 24 characters or less');
       return;
     }
 
-    // 최대 5개 체크
     if (tags.length >= 5) {
       setError('Maximum 5 tags allowed');
       return;
     }
 
-    // 중복 체크
     if (tags.includes(trimmedTag)) {
       setError('Duplicate tag');
       return;
@@ -138,14 +132,12 @@ const PostCreate = () => {
       return;
     }
 
-    // 금칙어 체크 - title
     const forbiddenWordInTitle = checkForbiddenWords(title);
     if (forbiddenWordInTitle) {
       setError(`금칙어가 포함되어 있습니다: "${forbiddenWordInTitle}"`);
       return;
     }
 
-    // 금칙어 체크 - body
     const forbiddenWordInBody = checkForbiddenWords(body);
     if (forbiddenWordInBody) {
       setError(`금칙어가 포함되어 있습니다: "${forbiddenWordInBody}"`);
@@ -155,7 +147,6 @@ const PostCreate = () => {
     try {
       setIsSubmitting(true);
       if (isEditMode && id) {
-        // 수정 모드
         await updatePost(id, {
           title: title.trim(),
           body: body.trim(),
@@ -163,7 +154,6 @@ const PostCreate = () => {
           tags,
         });
       } else {
-        // 생성 모드
         await createPost({
           title: title.trim(),
           body: body.trim(),
