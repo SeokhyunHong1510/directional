@@ -29,7 +29,8 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token');
-      window.location.href = '/login';
+      // 토큰만 제거하고 페이지 이동은 하지 않음
+      // 컴포넌트에서 에러를 처리하도록 함
     }
     return Promise.reject(error);
   },

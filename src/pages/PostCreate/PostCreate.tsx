@@ -40,6 +40,14 @@ const PostCreate = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // 인증 체크: 토큰이 없으면 메인으로 리다이렉트
+  useEffect(() => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      navigate('/');
+    }
+  }, [navigate]);
+
   const checkForbiddenWords = (text: string): string | null => {
     const foundWord = FORBIDDEN_WORDS.find((word) => text.includes(word));
     return foundWord || null;
@@ -71,6 +79,13 @@ const PostCreate = () => {
     const trimmedTag = tagInput.trim();
 
     if (!trimmedTag) {
+      return;
+    }
+
+    // 금지어 체크
+    const forbiddenWord = checkForbiddenWords(trimmedTag);
+    if (forbiddenWord) {
+      setError(`Tag contains forbidden word: "${forbiddenWord}"`);
       return;
     }
 

@@ -15,15 +15,13 @@ const Router = () => {
       <GlobalStyle />
       <Header />
       <Routes>
+        <Route path="/" element={<Chart />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<PostList />} />
         <Route path="/posts" element={<PostList />} />
         <Route path="/posts/new" element={<PostCreate />} />
         <Route path="/posts/edit/:id" element={<PostCreate />} />
         <Route path="/posts/:id" element={<PostDetail />} />
         <Route path="/mypage" element={<MyPage />} />
-        <Route path="/charts" element={<Chart />} />
-        {/* Add more routes here */}
       </Routes>
     </BrowserRouter>
   );
