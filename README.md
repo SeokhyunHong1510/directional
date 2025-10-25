@@ -106,7 +106,7 @@ src/
 
 ### 4. 기술적 특징
 - **타입 안정성**
-  - TypeScript를 활용한 엄격한 타입 체크
+  - TypeScript를 활용한 타입 체크
   - API 응답 타입 정의 및 검증
 - **코드 품질**
   - ESLint + Prettier를 통한 일관된 코드 스타일
