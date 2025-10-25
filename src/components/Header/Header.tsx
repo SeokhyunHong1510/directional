@@ -32,14 +32,20 @@ const Header = () => {
       <Nav>
         <NavLink
           onClick={() => navigate('/posts')}
-          active={location.pathname === '/' || location.pathname === '/posts'}
+          $active={location.pathname === '/' || location.pathname === '/posts'}
         >
           Posts
+        </NavLink>
+        <NavLink
+          onClick={() => navigate('/charts')}
+          $active={location.pathname === '/charts'}
+        >
+          Charts
         </NavLink>
         {isLoggedIn && (
           <NavLink
             onClick={() => navigate('/mypage')}
-            active={location.pathname === '/mypage'}
+            $active={location.pathname === '/mypage'}
           >
             My Page
           </NavLink>

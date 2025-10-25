@@ -33,12 +33,12 @@ export const Nav = styled.nav`
   justify-content: center;
 `;
 
-export const NavLink = styled.button<{ active?: boolean }>`
+export const NavLink = styled.button<{ $active?: boolean }>`
   background: none;
   border: none;
   font-size: 1rem;
-  font-weight: ${(props) => (props.active ? '600' : '400')};
-  color: ${(props) => (props.active ? '#007bff' : '#666')};
+  font-weight: ${(props) => (props.$active ? '600' : '400')};
+  color: ${(props) => (props.$active ? '#007bff' : '#666')};
   cursor: pointer;
   padding: 0.5rem 1rem;
   position: relative;
@@ -49,7 +49,7 @@ export const NavLink = styled.button<{ active?: boolean }>`
   }
 
   ${(props) =>
-    props.active &&
+    props.$active &&
     `
     &::after {
       content: '';
