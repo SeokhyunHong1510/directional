@@ -6,7 +6,7 @@
 
 ## 배포 링크
 
-- <a href="https://directional-drab.vercel.app/" target="_blank" rel="noopener noreferrer">https://directional-drab.vercel.app/</a>
+- https://directional-drab.vercel.app/
 
 
 ## 프로젝트 실행 방법
