@@ -13,7 +13,7 @@
 
 ### 설치
 ```bash
-npm install
+npm ci
 ```
 
 ### 개발 서버 실행
