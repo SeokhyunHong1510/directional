@@ -193,7 +193,7 @@ src/
 
 ## 배포 링크
 
-TODO: 배포 후 추가
+- https://directional-drab.vercel.app/
 
 ---
 
