@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { usePosts } from '../../hooks/usePosts';
 import type { Category, GetPostsParams } from '../../types/post';
 
-import { deleteAllPosts } from '../../api/posts';
+import { deleteAllPosts, deletePost } from '../../api/posts';
 import {
   Button,
   ButtonGroup,
@@ -86,6 +86,18 @@ const MyPage = () => {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    if (window.confirm('이 게시글을 삭제하시겠습니까?')) {
+      try {
+        await deletePost(id);
+        alert('게시글이 삭제되었습니다.');
+        window.location.reload();
+      } catch (err) {
+        alert('게시글 삭제에 실패했습니다.');
+      }
+    }
+  };
+
   const handleDeleteAll = async () => {
     if (window.confirm('모든 게시글을 삭제하시겠습니까?')) {
       try {
@@ -142,19 +154,31 @@ const MyPage = () => {
       <PostListContainer>
         {data?.items && data.items.length > 0 ? (
           data.items.map((post) => (
-            <PostCard key={post.id}>
+            <PostCard
+              key={post.id}
+              onClick={() => navigate(`/posts/${post.id}`, { state: { post } })}
+            >
               <PostHeader>
                 <PostCategory category={post.category}>
                   {post.category}
                 </PostCategory>
                 <PostActions>
                   <IconButton
-                    onClick={() => navigate(`/posts/edit/${post.id}`)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/posts/edit/${post.id}`);
+                    }}
                   >
                     Edit
                   </IconButton>
-                  <IconButton onClick={() => navigate(`/posts/${post.id}`)}>
-                    View
+                  <IconButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(post.id);
+                    }}
+                    danger
+                  >
+                    Delete
                   </IconButton>
                 </PostActions>
               </PostHeader>
