@@ -1,4 +1,4 @@
-# Directional Frontend Assignment
+# Directional 프론트엔드 채용과제
 
 디렉셔널 프론트엔드 채용 과제
 
