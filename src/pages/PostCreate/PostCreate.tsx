@@ -132,6 +132,11 @@ const PostCreate = () => {
       return;
     }
 
+    if (body.trim().length > 2000) {
+      setError('Body must be 2000 characters or less');
+      return;
+    }
+
     const forbiddenWordInTitle = checkForbiddenWords(title);
     if (forbiddenWordInTitle) {
       setError(`금칙어가 포함되어 있습니다: "${forbiddenWordInTitle}"`);
